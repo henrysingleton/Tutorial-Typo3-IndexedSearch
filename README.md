@@ -1,7 +1,7 @@
 # Typo3 Tutorial for Indexed Search Engine
 This tutorial help you to use the Indexed Search Engine 7.x.x
 
-<strong>Before to start</strong>
+<strong>Before to start</strong><br>
 I assum you have:
 * Typo3 7.x.x
 * Indexed Search Engine 7.x.x is installed
