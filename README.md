@@ -40,7 +40,7 @@ in: \Resources\Private\Templates\Search\Form.html
 ```
 
 ## Create the input form as Partial
-in: \Resources\Private\Partials\Search\Form.html
+in: \Resources\Private\Partials\Search\Form.html<br>
 Take the ID of your page with the Plugin and set it in pageUid 
 ```HTML
 <f:form pageUid="PAGEID" action="search" method="post" id="tx_indexedsearch" noCacheHash="true">
