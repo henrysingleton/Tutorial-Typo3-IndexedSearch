@@ -1,10 +1,10 @@
 # Typo3 Tutorial for Indexed Search Engine
-This tutorial help you to use the Indexed Search Engine 7.x.x
+This tutorial help you to use the Indexed Search Engine 7.x.x for Front-End
 
 <strong>Before to start</strong><br>
-I assum you have:
+I assum you have installed:
 * Typo3 7.x.x
-* Indexed Search Engine 7.x.x is installed
+* Indexed Search Engine 7.x.x
 
 your own Ext in Typo3conf/Ext. All paths I use are related to this (Ext).
 
