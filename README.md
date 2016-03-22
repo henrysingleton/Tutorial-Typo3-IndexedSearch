@@ -1,47 +1,63 @@
 # Typo3 Tutorial for Indexed Search Engine
-This tutorial help you to use the Indexed Search Engine 7.x.x for Front-End
 
-<strong>Before to start</strong><br>
-I assum you have installed:
+This tutorial will show you how to display an Indexed Search Engine search form in the frontend of a Fluid-Powered Typo3 website. It will have a dedicated search results page, but the search form can be easily placed in any fluid template, including site-wide templates. This would let you have a search box in your site header, for example. 
+
+## Requirements 
+
 * Typo3 7.x.x
-* Indexed Search Engine 7.x.x
+* [Indexed Search Engine 7.x.x](https://docs.typo3.org/typo3cms/extensions/indexed_search/) installed and active
+* Your own "provider" extension
 
-your own Ext in Typo3conf/Ext. All paths I use are related to this (Ext).
+#### Some notes about your provider extension
+This extension is where you will typically keep all your project-specific files, templates etc. It will be referred to as `your_extension` for the rest of the tutorial, so be sure to replace any instances of `your_extension` with your actual extension directory name. If you don't have your own provider extension, you can create one easily with the [Builder](https://typo3.org/extensions/repository/view/extension_builder) extension. 
 
-What it will happen:
-* Configuration of the Indexed Search
-* Creating Template and Partial in Fluid
-* Creating TypoScript Lib to use it as object
+## This tutorial will teach you how to:
 
-## Minimal configuration
-in: \Configuration\TypoScript\setup.txt
+* Configure the Indexed Search extension
+* Create the form template and partial in Fluid
+* Create TypoScript Lib file, so we can communicate with the Indexed Search extension in our Fluid template.
+
+## Basic Configuration
+
+This basic configuration simply enables the search indexer for your site. Without this, the indexer won't index any of your pages, and you won't get any results when you submit a search query. 
+
+`your_extension\Configuration\TypoScript\setup.txt`
+
 ```TypoScript
 config {
   ## Indexed Search
   # If the cache is disabled, no indexed_search records are created
   no_cache = 0
+  # Enable the indexer
   index_enable = 1
   index_externals = 1
   index_metatags = 1
 }
 ```
-For more informations about the conf -> [Indexed Search Conf](https://wiki.typo3.org/De:Indexed_search)<br>
-For more informations about the ext  -> [Indexed Search Doc](https://docs.typo3.org/typo3cms/extensions/indexed_search/latest/)
 
-## Creating the page
-Go in your Backend and create a new page.
-Put inside a Content Element in Plugins -> Indexed Search (Extbase & Fluid based).<br>
-Save the Page ID for later.
+## Create the results page
 
-## Create the form as Template
-in: \Resources\Private\Templates\Search\Form.html
+A results page is required to show the search results after submitting a search query.  
+To create this page: 
+
+1. Log into the Typo3 backend backend and create a new page in your site. Call it "Search Results" or something like that. 
+2. Create a Content Element inside your page. Choose Plugins -> "Indexed Search" as the type.
+3. Once it's created, view the "Plugin" tab when editing the Content Element, and choose "Indexed Search (Extbase & Fluid based)" from the dropdown.
+4. Save the Content Element, taking note of the Page ID, since we'll need it later.
+
+## Create the search form Template
+
+Create a template in `your_extension\Resources\Private\Templates\Search\Form.html` with the following content. This will load in the partial we will create next. 
+
 ```HTML
 <f:render partial="Search/Form" arguments="{_all}" />
 ```
 
-## Create the input form as Partial
-in: \Resources\Private\Partials\Search\Form.html<br>
-Take the ID of your page with the Plugin and set it in pageUid 
+## Create the search form Partial
+
+Create a new file in `your_extension\Resources\Private\Partials\Search\Form.html` with the following content. This was taken directly from the Indexed Search extension (`Indexed_Search/Resources/Private/Partials/Form.html`).   
+*Remember to replace PAGEID in the `<f:form />` element with the page ID you took note of above.*
+
 ```HTML
 <f:form pageUid="PAGEID" action="search" method="post" id="tx_indexedsearch" noCacheHash="true">
 	<div class="tx-indexedsearch-hidden-fields">
@@ -60,13 +76,16 @@ Take the ID of your page with the Plugin and set it in pageUid
 		<f:form.hidden name="search[extendedSearch]" value="{searchParams.extendedSearch}" />
 	</div>
 	<div class="tx-indexedsearch-form">
-		<f:form.textfield placeholder="Suche" name="search[sword]" value="{sword}" class="tx-indexedsearch-searchbox-sword" />
+		<f:form.textfield placeholder="Search" name="search[sword]" value="{sword}" class="tx-indexedsearch-searchbox-sword" />
 	</div>
 </f:form>
 ```
 
 ## Create the TypoScript Object
-in: \Configuration\TypoScript\Lib\lib.search.box.ts
+
+Create a new TypoScript file in `your_extension\Configuration\TypoScript\Lib\lib.search.box.ts`.  
+*Remember to replace `your_extension` with your extension directory name.*
+
 ```TypoScript
 lib.search.box = COA
 lib.search.box {
@@ -84,25 +103,43 @@ lib.search.box {
 
     view {
       templateRootPaths {
-        10 = EXT:ext/Resources/Private/Templates/
+        10 = EXT:your_extension/Resources/Private/Templates/
       }
       partialRootPaths {
-        10 = EXT:ext/Resources/Private/Partials/
+        10 = EXT:your_extension/Resources/Private/Partials/
       }
       layoutRootPaths {
-        10 = EXT:ext/Resources/Private/Layouts/
+        10 = EXT:your_extension/Resources/Private/Layouts/
       }
     }
   }
 }
 ```
-Load it in your Setup
-in: \Configuration\TypoScript\setup.txt
+
+Include this script in your TypoScript setup file. Note that you could also copy and paste the contents straight into your setup file but this keeps it separated.  
+*Remember to replace `your_extension` with your extension directory name.*
+
+ `your_extension\Configuration\TypoScript\setup.txt`  
 ```TypoScript
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:Ext/Configuration/TypoScript/Library/lib.search.box.ts">
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:your_extension/Configuration/TypoScript/Lib/lib.search.box.ts">
 ```
-### Congrats!
-Now you can render it in your template
+
+## Call the object in your Fluid template 
+
+In any fluid template inside your provider extension, you should now be able to put in the following: 
+
 ```HTML
 <f:cObject typoscriptObjectPath="lib.search.box"/>
 ```
+
+The search form should be shown, and when you submit the form, you should be taken to the results page you created. 
+
+## Next Steps
+
+You can now easily customise the appearance of the form by editing `your_extension\Resources\Private\Partials\Search\Form.html`. 
+
+## More Information
+
+* [Search Index extension manual](https://docs.typo3.org/typo3cms/extensions/indexed_search/)
+* [Indexed Search extension wiki page](https://wiki.typo3.org/De:Indexed_search)
+
